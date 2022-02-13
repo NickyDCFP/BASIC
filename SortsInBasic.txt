@@ -1,0 +1,165 @@
+1 rem Nicky Kriplani, 02-13-2022, Github/NickyDCFP
+2 rem Sorts randomized arrays with a choice of bubble sort or an
+3 rem iterative merge sort (using a 2d array). Subsequently, 
+4 rem uses the internal jiffy clock to provide the program's runtime.
+8 print "This program uses bubble sort or an iterative merge sort to"
+9 print "sort a randomized integer array of given size in a given range."
+12 print "Please keep all numerical inputs to whole integers."
+13 input "What would you like to set as the low end of your range"; lo
+14 input "What would you like to set as the high end of your range"; hi
+
+15 input "How many elements would you like to sort"; n
+16 if n <= 0 then print "Please enter a positive number":goto 15
+17 input "Would you like 'bubblesort' or 'mergesort'";a$
+18 print ""
+19 if a$ = "bubblesort" then gosub 100:goto 2550:rem run bubblesort
+20 gosub 1000:goto 2550:rem run mergesort
+
+100 rem PRINTING THE ARRAY BEFORE SORTING
+101 print "Running bubblesort on the following set of integers:"
+110 dim v(n) : rem the v() array holds the values to be sorted
+120 for i = 1 to n
+130 v(i) = int(rnd(0)*(hi-lo)+lo)
+135 print v(i);
+140 next i
+145 print ""
+150 if n = 1 then goto 562 : rem routes to a subroutine that deals with
+155 rem                      the edge case of 1 length.
+
+156 rem INITIALIZING THE JIFFY CLOCK
+170 tr = ti
+
+171 rem MAIN BUBBLE SORT LOOP
+215 np = 0  : rem np (next pass) tracks whether or not the sort needs 
+216 rem           to do another pass of the array
+220 c = 1 : rem c will index across the array 
+230 if v(c) > v(c + 1) then gosub 500 : rem tests to see if the two
+235 rem values at indexes c and c + 1 need to be swapped. If they do, 
+236 rem jumps to the swap subroutine.
+240 c = c + 1
+250 if c >= n then goto 550 : rem when the end of the array is reached,
+251 rem                       test if you need to do another pass
+260 goto 230 : rem continue indexing across the array
+
+261 rem SWAP SUBROUTINE
+500 tm = v(c) : rem tm is a temp variable
+505 v(c) = v(c + 1)
+510 v(c + 1) = tm
+515 np = 1 : rem lets the sort know that it needs to do another pass
+520 return : rem continues indexing across the array
+
+522 rem COMPLETION CHECK
+550 if np = 1 then goto 215 : rem jumps back to the loop if it needs to
+551 rem                           do another pass
+560 goto 600 : rem jumps to the end of the program since the sort has
+561 rem            finished
+
+562 rem ONE-LENGTH CASE
+563 print ""
+564 print "One-length array is already sorted."
+565 print v(1) : rem prints the array(1 length)
+571 goto 631 : rem ends the program
+
+572 rem FINAL BUBBLE SORTED ARRAY PRINTING
+600 gosub 2330 : rem print runtime
+610 for i = 1 to n
+620 print v(i);
+630 next i
+631 return
+
+
+1000 rem MERGE SORT SUBROUTINE
+1010 print "Running mergesort on the following set of integers:"
+1011 tr = ti : rem stores the current state of the jiffy clock
+1012 if n = 1 then goto 110 rem routes to bubblesort in one-length case
+1015 c1 = log(n)/log(2)
+1016 if c1 > int(c1) then c = int(c1) + 1:goto 1030
+1020 c = int(c1)
+1030 c = c + 1 :rem adds 1 to c to get the proper array length to run the
+1031 rem sort
+1035 dim v(n, c)  :rem makes a 2d array that will hold the merge sort
+1040 for i = 1 to n :rem creates and prints the unsorted array
+1050 v(i, 1) = int(rnd(0)*(hi-lo)+lo)
+1060 print v(i, 1);
+1070 next i
+1080 print ""
+1090 co = 1: rem co represents the current column of the 2d array
+1091 rem being used for the sort
+1095 gosub 1500 : rem merges the array once
+1100 if co = c then goto 2508 : rem runs the print routine since the
+1101 rem array is sorted
+1110 goto 1095 : rem if the array is not sorted, merge again
+
+
+1500 rem MERGE SUBROUTINE
+1510 in = 2^(co-1): rem in represents each array's length
+1520 ne = 1: rem ne is the next array location to be filled
+1525 cu = 1: rem cu is the start of first array being merged
+1530 i1 = cu : rem prepares the first indexer to move across the array
+1540 i2 = cu + in : rem prepares the second indexer
+1550 s1 = 0 : rem prepares the indexer's accompaniment to track its
+1551 rem current position
+1560 s2 = 0 : rem prepares the accompaniment to the second indexer
+1570 if i1 + s1 > n then co = co + 1: return : rem tests to see if
+1571 : rem the end of the master array was reached by the first indexer 
+1580 if i2 + s2 > n then goto 2100 : rem tests to see if the second
+1581 rem reached the end of the master array
+1590 if i1 + s1 >= i2 then goto 2200 : rem tests to see if the first
+1591 rem indexer has reached the end of its array
+1600 if i2 + s2 >= i2 + in then goto 2300 : rem tests to see if the
+1601 rem second indexer has reached the end of its array
+1610 if v(i1 + s1, co) < v(i2 + s2, co) then gosub 2000:goto 1570
+1611 rem checks to see which of the values at the indexes is larger
+1620 gosub 2050:goto 1570
+
+
+
+2000 rem TRANSFER LATEST VALUE IN ARRAY 1
+2010 v(ne, co + 1) = v(i1 + s1, co)
+2020 ne = ne + 1
+2030 s1 = s1 + 1
+2040 return
+
+2050 rem TRANSFER LATEST VALUE IN ARRAY 2
+2060 v(ne, co + 1) = v(i2 + s2, co)
+2070 ne = ne + 1
+2080 s2 = s2 + 1
+2090 return
+
+
+2100 rem CONDITION IF END OF MASTER ARRAY REACHED
+2110 if i1 + s1 >= i2 then co = co + 1: return: rem checks to see if
+2111 rem the first indexer has reached the end of its array
+2120 gosub 2000:rem transfers the latest value in array 1 into the
+2121 rem next column
+2130 goto 1570
+
+2200 rem CONDITION IF END OF 1ST ARRAY REACHED
+2210 if s2 >= in then cu = cu + 2*(in): goto 1530: rem checks to see if
+2211 rem the second indexer has reached the end of its array
+2220 gosub 2050:rem transfers the latest value in array 2 into the
+2221 rem next column
+2230 goto 1570
+
+2300 rem CONDITION IF END OF 2ND ARRAY REACHED
+2310 gosub 2000: rem transfers the latest value in array 1 into the
+2311 rem next column
+2320 goto 1570
+
+2330 rem RUNTIME PRINTING SUBROUTINE
+2331 rn = ti - tr : rem rn is the runtime of the sort
+2335 print ""
+2340 print "Sort complete in";
+2502 print rn;
+2503 print "ticks or";
+2504 print rn / 60;
+2505 print "seconds. Here is the sorted set:"
+2507 return
+
+2508 rem PRINTING AFTER SORTING
+2509 gosub 2330 : rem print runtime
+2510 for i = 1 to n
+2520 print v(i, c);
+2530 next i
+2540 return
+2550 rem PROGRAM COMPLETE. This line is an exit point.
